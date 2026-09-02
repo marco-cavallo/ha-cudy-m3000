@@ -1,0 +1,21 @@
+{
+  "domain": "cudy_m3000",
+  "name": "Cudy M3000",
+  "version": "1.0.0",
+  "codeowners": [
+    "@marco-cavallo"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/marco-cavallo/ha-cudy-m3000",
+  "issue_tracker": "https://github.com/marco-cavallo/ha-cudy-m3000/issues",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "quality_scale": "custom",
+  "requirements": [],
+  "dependencies": [
+    "http",
+    "frontend",
+    "panel_custom",
+    "websocket_api"
+  ]
+}

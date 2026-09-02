@@ -1,0 +1,165 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Cudy M3000",
+        "description": "Adresse des Hauptknotens und Administratorkennwort eingeben.",
+        "data": {
+          "host": "IP-Adresse",
+          "password": "Kennwort",
+          "username": "Benutzername"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Cudy-M3000-Anmeldung",
+        "description": "Der Router hat die gespeicherten Zugangsdaten abgelehnt. Bitte das aktuelle Kennwort eingeben.",
+        "data": {
+          "password": "Kennwort"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Router nicht erreichbar",
+      "invalid_auth": "Ungültiges Kennwort",
+      "unknown": "Unerwarteter Fehler"
+    },
+    "abort": {
+      "already_configured": "Dieses Mesh-System ist bereits eingerichtet",
+      "reauth_successful": "Anmeldung aktualisiert"
+    }
+  },
+  "options": {
+    "step": {
+      "settings": {
+        "title": "Einstellungen",
+        "data": {
+          "scan_interval": "Aktualisierungsintervall (Sekunden)",
+          "language": "Sprache der Routerseiten",
+          "panel": "Panel in der Seitenleiste anzeigen",
+          "device_trackers": "Entitäten für verbundene Geräte anlegen"
+        },
+        "data_description": {
+          "language": "«Auto» folgt der Sprache von Home Assistant und ändert auch die Sprache der Router-Weboberfläche.",
+          "scan_interval": "Niedrige Werte erhöhen die Last auf dem Router.",
+          "device_trackers": "Aus lassen, wenn die Geräte bereits über eine andere Integration erfasst werden. Beim Ausschalten werden bereits angelegte Entitäten entfernt."
+        }
+      },
+      "init": {
+        "title": "Cudy M3000",
+        "menu_options": {
+          "settings": "Einstellungen",
+          "about": "Info"
+        }
+      },
+      "about": {
+        "title": "Info",
+        "description": "## {name}\n**{version}** — By **{author}**\n\nHolt ein Cudy-M3000-Mesh-System in Home Assistant und ersetzt die Weboberfläche des Routers im Alltag. Kein Cloud-Dienst und keine Python-Abhängigkeiten: alles läuft auf dem eigenen Rechner.\n\n---\n\n### Funktionen\n\n**Mesh-Topologie**  \nJeder Knoten ist ein eigenes Gerät, die Satelliten hängen unter dem Controller: Modell, Firmware, Seriennummer, IP, MAC, Backhaul und Hop-Anzahl.\n\n**Überwachung je Knoten**  \nVerbundene Clients, CPU-Last, Speicherauslastung, Verbindungsstatus sowie Kanal und Bandbreite jedes Funkmoduls.\n\n**Router-Informationen**  \nDie Statusfelder der Router-Startseite: Firmware, Ortszeit, Laufzeit, Mesh-Einheiten, Clients je Band, SSID und LAN-Adresse.\n\n**Vollständige Konfiguration**  \nAlle Einstellungsseiten des Routers, nach Kategorie gruppiert und aus den Formulardefinitionen der Firmware gelesen.\n\n**Knotenverwaltung**  \nLED je Knoten ein- und ausschalten sowie Neustart, aus dem Panel oder über Entitäten und Dienste.\n\n**Diagnose**  \nPing, Traceroute und Nslookup direkt auf dem Router, dazu das Systemprotokoll.\n\n**Mehrsprachig**  \nDie Beschriftungen liefert der Router, der in der Sprache von Home Assistant abgefragt wird.\n\n**Client-Verfolgung**  \nOptional und standardmäßig aus: ein device_tracker je Client, mit Knoten, Band, Durchsatz und Verbindungsdauer.\n\n---\n\n### Aktueller Zustand\n\n| | |\n|---|---|\n| Router | `{host}` |\n| Modell | `{model}` · fw `{firmware}` |\n| Seriennummer | `{serial}` |\n| Laufzeit | {uptime} |\n| Knoten online | **{nodes_online}** / **{nodes}** |\n| Clients | **{clients}** |\n| Je Band | 2.4 GHz **{clients_24}** · 5 GHz **{clients_5}** |\n| Aktualisierungsintervall | {interval} s |\n| Routersprache | `{language}` |\n| Seitenleisten-Panel | `{panel}` |\n| Client-Verfolgung | `{trackers}` |\n\n---\n\n### Entitäten\n\n- `sensor.*` — clients, CPU, memory, state, backhaul, channels\n- `binary_sensor.*` — node online\n- `switch.*` — LED\n- `button.*` — reboot\n\n### Dienste\n\n- `cudy_m3000.reboot_node`\n- `cudy_m3000.set_led`\n- `cudy_m3000.run_diagnostic`\n- `cudy_m3000.refresh`\n\n---\n\nApache License 2.0 · Copyright 2026 Marco Cavallo. Die Namensnennung darf in Weiterverbreitungen und abgeleiteten Werken nicht entfernt werden. Nicht mit Shenzhen Cudy Technology Co., Ltd. verbunden."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "clients": {
+        "name": "Verbundene Clients"
+      },
+      "cpu_load": {
+        "name": "CPU-Last"
+      },
+      "memory_load": {
+        "name": "Speicherauslastung"
+      },
+      "node_state": {
+        "name": "Knotenstatus",
+        "state": {
+          "connected": "Verbunden",
+          "disconnected": "Getrennt",
+          "connecting": "Verbindet",
+          "unknown": "Unbekannt"
+        }
+      },
+      "backhaul": {
+        "name": "Backhaul"
+      },
+      "channel_24": {
+        "name": "Kanal 2,4 GHz"
+      },
+      "channel_5": {
+        "name": "Kanal 5 GHz"
+      },
+      "total_clients": {
+        "name": "Clients im Mesh"
+      },
+      "online_nodes": {
+        "name": "Knoten online"
+      },
+      "uptime": {
+        "name": "Läuft seit"
+      },
+      "clients_24g": {
+        "name": "Geräte 2,4 GHz"
+      },
+      "clients_5g": {
+        "name": "Geräte 5 GHz"
+      }
+    },
+    "binary_sensor": {
+      "node_online": {
+        "name": "Knoten online"
+      }
+    },
+    "switch": {
+      "led": {
+        "name": "LED"
+      }
+    },
+    "button": {
+      "reboot": {
+        "name": "Neustart"
+      }
+    }
+  },
+  "services": {
+    "reboot_node": {
+      "name": "Knoten neu starten",
+      "description": "Startet einen Mesh-Knoten neu. Auf dem Hauptknoten den ganzen Router.",
+      "fields": {
+        "device_id": {
+          "name": "Knoten",
+          "description": "Der neu zu startende Knoten."
+        }
+      }
+    },
+    "set_led": {
+      "name": "LED setzen",
+      "description": "Schaltet die Status-LED eines Knotens ein oder aus.",
+      "fields": {
+        "device_id": {
+          "name": "Knoten",
+          "description": "Der Knoten, dessen LED geändert wird."
+        },
+        "led": {
+          "name": "LED an",
+          "description": "Ob die LED leuchten soll."
+        }
+      }
+    },
+    "run_diagnostic": {
+      "name": "Diagnose ausführen",
+      "description": "Führt Ping, Traceroute oder Nslookup auf dem Router aus und gibt die Ausgabe zurück.",
+      "fields": {
+        "tool": {
+          "name": "Werkzeug",
+          "description": "Welches Werkzeug ausgeführt wird."
+        },
+        "target": {
+          "name": "Ziel",
+          "description": "Adresse oder Hostname."
+        }
+      }
+    },
+    "refresh": {
+      "name": "Aktualisieren",
+      "description": "Liest den Router sofort, ohne auf den nächsten Zyklus zu warten."
+    }
+  }
+}

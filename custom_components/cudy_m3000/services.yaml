@@ -1,0 +1,72 @@
+# Copyright 2026 Marco Cavallo
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Cudy M3000 - By Marco Cavallo.
+
+reboot_node:
+  name: Reboot node
+  description: Restart one mesh node. On the main node this restarts the whole router.
+  fields:
+    device_id:
+      name: Node
+      description: The mesh node to restart.
+      required: true
+      selector:
+        device:
+          integration: cudy_m3000
+
+set_led:
+  name: Set LED
+  description: Turn the status LED of a mesh node on or off.
+  fields:
+    device_id:
+      name: Node
+      description: The mesh node whose LED to change.
+      required: true
+      selector:
+        device:
+          integration: cudy_m3000
+    led:
+      name: LED on
+      description: Whether the LED should be lit.
+      required: true
+      selector:
+        boolean:
+
+run_diagnostic:
+  name: Run diagnostic
+  description: >-
+    Run ping, traceroute or nslookup on the router and return the output.
+  fields:
+    tool:
+      name: Tool
+      description: Which diagnostic tool to run.
+      required: true
+      example: ping
+      selector:
+        select:
+          options:
+            - ping
+            - traceroute
+            - nslookup
+    target:
+      name: Target
+      description: Address or hostname to probe.
+      required: true
+      example: "8.8.8.8"
+      selector:
+        text:
+
+refresh:
+  name: Refresh
+  description: Read the router immediately instead of waiting for the next poll.

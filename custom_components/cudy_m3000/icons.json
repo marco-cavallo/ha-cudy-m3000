@@ -1,0 +1,8 @@
+{
+  "services": {
+    "reboot_node": { "service": "mdi:restart" },
+    "set_led": { "service": "mdi:led-on" },
+    "run_diagnostic": { "service": "mdi:stethoscope" },
+    "refresh": { "service": "mdi:refresh" }
+  }
+}

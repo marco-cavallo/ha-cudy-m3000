@@ -1,0 +1,165 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Cudy M3000",
+        "description": "Introduce la dirección del nodo principal y la contraseña de administrador.",
+        "data": {
+          "host": "Dirección IP",
+          "password": "Contraseña",
+          "username": "Nombre de usuario"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Autenticación de Cudy M3000",
+        "description": "El router rechazó las credenciales guardadas. Introduce la contraseña actualizada.",
+        "data": {
+          "password": "Contraseña"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No se puede alcanzar el router",
+      "invalid_auth": "Contraseña no válida",
+      "unknown": "Error inesperado"
+    },
+    "abort": {
+      "already_configured": "Este sistema mesh ya está configurado",
+      "reauth_successful": "Autenticación actualizada"
+    }
+  },
+  "options": {
+    "step": {
+      "settings": {
+        "title": "Ajustes",
+        "data": {
+          "scan_interval": "Intervalo de actualización (segundos)",
+          "language": "Idioma de las páginas del router",
+          "panel": "Mostrar el panel lateral",
+          "device_trackers": "Crear entidades para los dispositivos conectados"
+        },
+        "data_description": {
+          "language": "«Auto» sigue el idioma de Home Assistant y cambia también el de la interfaz web del router.",
+          "scan_interval": "Valores bajos aumentan la carga del router.",
+          "device_trackers": "Déjalo desactivado si esos dispositivos ya los sigue otra integración. Al desactivarlo se eliminan las ya creadas."
+        }
+      },
+      "init": {
+        "title": "Cudy M3000",
+        "menu_options": {
+          "settings": "Ajustes",
+          "about": "Acerca de"
+        }
+      },
+      "about": {
+        "title": "Acerca de",
+        "description": "## {name}\n**{version}** — By **{author}**\n\nTrae un sistema mesh Cudy M3000 a Home Assistant y sustituye la interfaz web del router en la administración diaria. Sin servicios en la nube ni dependencias de Python: todo se ejecuta en tu propia máquina.\n\n---\n\n### Qué hace\n\n**Topología mesh**  \nCada nodo es un dispositivo propio, con los satélites anidados bajo el controlador: modelo, firmware, número de serie, IP, MAC, enlace y saltos.\n\n**Supervisión por nodo**  \nClientes conectados, carga de CPU, uso de memoria, estado del enlace, canal y ancho de banda de cada radio.\n\n**Información del router**  \nLos recuadros de estado de la página de inicio: firmware, hora local, tiempo encendido, unidades mesh, clientes por banda, SSID y dirección LAN.\n\n**Configuración completa**  \nTodas las páginas de ajustes que expone el router, agrupadas por categoría y leídas de las definiciones de formulario del firmware.\n\n**Administración de nodos**  \nEncender y apagar el LED por nodo, y reiniciar, desde el panel o mediante entidades y servicios.\n\n**Diagnóstico**  \nPing, traceroute y nslookup ejecutados en el propio router, además del registro del sistema.\n\n**Multilingüe**  \nLas etiquetas las produce el router, consultado en el idioma de Home Assistant.\n\n**Seguimiento de clientes**  \nOpcional y desactivado por defecto: un device_tracker por cliente, con nodo, banda, rendimiento y duración.\n\n---\n\n### Estado actual\n\n| | |\n|---|---|\n| Router | `{host}` |\n| Modelo | `{model}` · fw `{firmware}` |\n| Número de serie | `{serial}` |\n| Tiempo encendido | {uptime} |\n| Nodos en línea | **{nodes_online}** / **{nodes}** |\n| Clientes | **{clients}** |\n| Por banda | 2.4 GHz **{clients_24}** · 5 GHz **{clients_5}** |\n| Intervalo de actualización | {interval} s |\n| Idioma del router | `{language}` |\n| Panel lateral | `{panel}` |\n| Seguimiento de clientes | `{trackers}` |\n\n---\n\n### Entidades\n\n- `sensor.*` — clients, CPU, memory, state, backhaul, channels\n- `binary_sensor.*` — node online\n- `switch.*` — LED\n- `button.*` — reboot\n\n### Servicios\n\n- `cudy_m3000.reboot_node`\n- `cudy_m3000.set_led`\n- `cudy_m3000.run_diagnostic`\n- `cudy_m3000.refresh`\n\n---\n\nApache License 2.0 · Copyright 2026 Marco Cavallo. La atribución no debe eliminarse de redistribuciones ni obras derivadas. Sin vinculación con Shenzhen Cudy Technology Co., Ltd."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "clients": {
+        "name": "Clientes conectados"
+      },
+      "cpu_load": {
+        "name": "Carga de CPU"
+      },
+      "memory_load": {
+        "name": "Uso de memoria"
+      },
+      "node_state": {
+        "name": "Estado del nodo",
+        "state": {
+          "connected": "Conectado",
+          "disconnected": "Desconectado",
+          "connecting": "Conectando",
+          "unknown": "Desconocido"
+        }
+      },
+      "backhaul": {
+        "name": "Enlace"
+      },
+      "channel_24": {
+        "name": "Canal 2,4 GHz"
+      },
+      "channel_5": {
+        "name": "Canal 5 GHz"
+      },
+      "total_clients": {
+        "name": "Clientes del mesh"
+      },
+      "online_nodes": {
+        "name": "Nodos en línea"
+      },
+      "uptime": {
+        "name": "Encendido desde"
+      },
+      "clients_24g": {
+        "name": "Dispositivos 2,4 GHz"
+      },
+      "clients_5g": {
+        "name": "Dispositivos 5 GHz"
+      }
+    },
+    "binary_sensor": {
+      "node_online": {
+        "name": "Nodo en línea"
+      }
+    },
+    "switch": {
+      "led": {
+        "name": "LED"
+      }
+    },
+    "button": {
+      "reboot": {
+        "name": "Reiniciar"
+      }
+    }
+  },
+  "services": {
+    "reboot_node": {
+      "name": "Reiniciar nodo",
+      "description": "Reinicia un nodo mesh. En el nodo principal, todo el router.",
+      "fields": {
+        "device_id": {
+          "name": "Nodo",
+          "description": "El nodo que se va a reiniciar."
+        }
+      }
+    },
+    "set_led": {
+      "name": "Establecer LED",
+      "description": "Enciende o apaga el LED de estado de un nodo.",
+      "fields": {
+        "device_id": {
+          "name": "Nodo",
+          "description": "El nodo cuyo LED cambia."
+        },
+        "led": {
+          "name": "LED encendido",
+          "description": "Si el LED debe estar encendido."
+        }
+      }
+    },
+    "run_diagnostic": {
+      "name": "Ejecutar diagnóstico",
+      "description": "Ejecuta ping, traceroute o nslookup en el router y devuelve el resultado.",
+      "fields": {
+        "tool": {
+          "name": "Herramienta",
+          "description": "Qué herramienta ejecutar."
+        },
+        "target": {
+          "name": "Destino",
+          "description": "Dirección o nombre de host."
+        }
+      }
+    },
+    "refresh": {
+      "name": "Actualizar",
+      "description": "Consulta el router de inmediato."
+    }
+  }
+}

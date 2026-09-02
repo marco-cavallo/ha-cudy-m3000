@@ -1,0 +1,165 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Cudy M3000",
+        "description": "Enter the address of the main mesh node and the admin password.",
+        "data": {
+          "host": "IP address",
+          "password": "Password",
+          "username": "Username"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Cudy M3000 authentication",
+        "description": "The router rejected the stored credentials. Enter the updated password.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot reach the router",
+      "invalid_auth": "Invalid password",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This mesh system is already configured",
+      "reauth_successful": "Authentication updated"
+    }
+  },
+  "options": {
+    "step": {
+      "settings": {
+        "title": "Settings",
+        "data": {
+          "scan_interval": "Update interval (seconds)",
+          "language": "Router page language",
+          "panel": "Show the sidebar panel",
+          "device_trackers": "Create entities for connected devices"
+        },
+        "data_description": {
+          "language": "\"Auto\" follows the Home Assistant language. This also changes the router's own web interface language.",
+          "scan_interval": "Low values increase the load on the router.",
+          "device_trackers": "Leave off if the devices are already tracked by another integration. Turning it off removes any entities already created."
+        }
+      },
+      "init": {
+        "title": "Cudy M3000",
+        "menu_options": {
+          "settings": "Settings",
+          "about": "About"
+        }
+      },
+      "about": {
+        "title": "About",
+        "description": "## {name}\n**{version}** — By **{author}**\n\nBrings a Cudy M3000 mesh system into Home Assistant and replaces the router's web interface for day-to-day administration. No cloud service and no Python dependencies: everything runs on your own machine.\n\n---\n\n### What it does\n\n**Mesh topology**  \nEvery node is its own device, with the satellites nested under the controller: model, firmware, serial number, IP, MAC, backhaul and hop count.\n\n**Per-node monitoring**  \nConnected clients, CPU load, memory usage, link state, and the channel and bandwidth of each radio.\n\n**Router information**  \nThe status panels of the router's home page: firmware, local time, uptime, mesh units, clients per band, SSID and LAN address.\n\n**Full configuration**  \nEvery settings page the router exposes, grouped by category and read from the firmware's own form definitions.\n\n**Node administration**  \nLED on and off per node, and reboot, from the panel or from Home Assistant entities and services.\n\n**Diagnostics**  \nPing, traceroute and nslookup run on the router itself, plus the system log.\n\n**Multilingual**  \nLabels come from the router, which is queried in the Home Assistant language.\n\n**Client tracking**  \nOptional and off by default: one device_tracker per client, with node, band, throughput and connection time.\n\n---\n\n### Current state\n\n| | |\n|---|---|\n| Router | `{host}` |\n| Model | `{model}` · fw `{firmware}` |\n| Serial number | `{serial}` |\n| Uptime | {uptime} |\n| Nodes online | **{nodes_online}** / **{nodes}** |\n| Clients | **{clients}** |\n| Per band | 2.4 GHz **{clients_24}** · 5 GHz **{clients_5}** |\n| Update interval | {interval} s |\n| Router language | `{language}` |\n| Sidebar panel | `{panel}` |\n| Client tracking | `{trackers}` |\n\n---\n\n### Entities\n\n- `sensor.*` — clients, CPU, memory, state, backhaul, channels\n- `binary_sensor.*` — node online\n- `switch.*` — LED\n- `button.*` — reboot\n\n### Services\n\n- `cudy_m3000.reboot_node`\n- `cudy_m3000.set_led`\n- `cudy_m3000.run_diagnostic`\n- `cudy_m3000.refresh`\n\n---\n\nApache License 2.0 · Copyright 2026 Marco Cavallo. Attribution must not be removed from redistributions or derivative works. Not affiliated with Shenzhen Cudy Technology Co., Ltd."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "clients": {
+        "name": "Connected clients"
+      },
+      "cpu_load": {
+        "name": "CPU load"
+      },
+      "memory_load": {
+        "name": "Memory usage"
+      },
+      "node_state": {
+        "name": "Node state",
+        "state": {
+          "connected": "Connected",
+          "disconnected": "Disconnected",
+          "connecting": "Connecting",
+          "unknown": "Unknown"
+        }
+      },
+      "backhaul": {
+        "name": "Backhaul"
+      },
+      "channel_24": {
+        "name": "2.4 GHz channel"
+      },
+      "channel_5": {
+        "name": "5 GHz channel"
+      },
+      "total_clients": {
+        "name": "Mesh total clients"
+      },
+      "online_nodes": {
+        "name": "Online nodes"
+      },
+      "uptime": {
+        "name": "Up since"
+      },
+      "clients_24g": {
+        "name": "2.4 GHz devices"
+      },
+      "clients_5g": {
+        "name": "5 GHz devices"
+      }
+    },
+    "binary_sensor": {
+      "node_online": {
+        "name": "Node online"
+      }
+    },
+    "switch": {
+      "led": {
+        "name": "LED"
+      }
+    },
+    "button": {
+      "reboot": {
+        "name": "Reboot"
+      }
+    }
+  },
+  "services": {
+    "reboot_node": {
+      "name": "Reboot node",
+      "description": "Restart one mesh node. On the main node this restarts the whole router.",
+      "fields": {
+        "device_id": {
+          "name": "Node",
+          "description": "The mesh node to restart."
+        }
+      }
+    },
+    "set_led": {
+      "name": "Set LED",
+      "description": "Turn the status LED of a mesh node on or off.",
+      "fields": {
+        "device_id": {
+          "name": "Node",
+          "description": "The mesh node whose LED to change."
+        },
+        "led": {
+          "name": "LED on",
+          "description": "Whether the LED should be lit."
+        }
+      }
+    },
+    "run_diagnostic": {
+      "name": "Run diagnostic",
+      "description": "Run ping, traceroute or nslookup on the router and return the output.",
+      "fields": {
+        "tool": {
+          "name": "Tool",
+          "description": "Which diagnostic tool to run."
+        },
+        "target": {
+          "name": "Target",
+          "description": "Address or hostname to probe."
+        }
+      }
+    },
+    "refresh": {
+      "name": "Refresh",
+      "description": "Read the router immediately instead of waiting for the next poll."
+    }
+  }
+}

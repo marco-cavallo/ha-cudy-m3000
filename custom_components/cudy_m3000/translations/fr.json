@@ -1,0 +1,165 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Cudy M3000",
+        "description": "Saisissez l'adresse du nœud principal et le mot de passe administrateur.",
+        "data": {
+          "host": "Adresse IP",
+          "password": "Mot de passe",
+          "username": "Nom d'utilisateur"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Authentification Cudy M3000",
+        "description": "Le routeur a rejeté les identifiants enregistrés. Saisissez le mot de passe à jour.",
+        "data": {
+          "password": "Mot de passe"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Routeur injoignable",
+      "invalid_auth": "Mot de passe invalide",
+      "unknown": "Erreur inattendue"
+    },
+    "abort": {
+      "already_configured": "Ce système maillé est déjà configuré",
+      "reauth_successful": "Authentification mise à jour"
+    }
+  },
+  "options": {
+    "step": {
+      "settings": {
+        "title": "Paramètres",
+        "data": {
+          "scan_interval": "Intervalle de mise à jour (secondes)",
+          "language": "Langue des pages du routeur",
+          "panel": "Afficher le panneau latéral",
+          "device_trackers": "Créer des entités pour les appareils connectés"
+        },
+        "data_description": {
+          "language": "« Auto » suit la langue de Home Assistant et change aussi celle de l'interface web du routeur.",
+          "scan_interval": "Des valeurs faibles augmentent la charge du routeur.",
+          "device_trackers": "Laissez désactivé si ces appareils sont déjà suivis par une autre intégration. La désactivation supprime celles déjà créées."
+        }
+      },
+      "init": {
+        "title": "Cudy M3000",
+        "menu_options": {
+          "settings": "Paramètres",
+          "about": "À propos"
+        }
+      },
+      "about": {
+        "title": "À propos",
+        "description": "## {name}\n**{version}** — By **{author}**\n\nAmène un système maillé Cudy M3000 dans Home Assistant et remplace l'interface web du routeur au quotidien. Aucun service cloud et aucune dépendance Python : tout tourne sur votre machine.\n\n---\n\n### Ce qu'elle fait\n\n**Topologie maillée**  \nChaque nœud est un appareil distinct, les satellites rattachés au contrôleur : modèle, micrologiciel, numéro de série, IP, MAC, liaison et nombre de sauts.\n\n**Surveillance par nœud**  \nClients connectés, charge processeur, mémoire utilisée, état du lien, canal et largeur de bande de chaque radio.\n\n**Informations du routeur**  \nLes encadrés d'état de la page d'accueil : micrologiciel, heure locale, temps de fonctionnement, unités maillées, clients par bande, SSID et adresse LAN.\n\n**Configuration complète**  \nToutes les pages de réglages exposées par le routeur, groupées par catégorie et lues depuis les définitions de formulaires du micrologiciel.\n\n**Administration des nœuds**  \nAllumage et extinction de la LED par nœud, et redémarrage, depuis le panneau ou via les entités et services.\n\n**Diagnostic**  \nPing, traceroute et nslookup exécutés sur le routeur, plus le journal système.\n\n**Multilingue**  \nLes libellés proviennent du routeur, interrogé dans la langue de Home Assistant.\n\n**Suivi des clients**  \nOptionnel et désactivé par défaut : un device_tracker par client, avec nœud, bande, débit et durée de connexion.\n\n---\n\n### État actuel\n\n| | |\n|---|---|\n| Routeur | `{host}` |\n| Modèle | `{model}` · fw `{firmware}` |\n| Numéro de série | `{serial}` |\n| Temps de marche | {uptime} |\n| Nœuds en ligne | **{nodes_online}** / **{nodes}** |\n| Clients | **{clients}** |\n| Par bande | 2.4 GHz **{clients_24}** · 5 GHz **{clients_5}** |\n| Intervalle de mise à jour | {interval} s |\n| Langue du routeur | `{language}` |\n| Panneau latéral | `{panel}` |\n| Suivi des clients | `{trackers}` |\n\n---\n\n### Entités\n\n- `sensor.*` — clients, CPU, memory, state, backhaul, channels\n- `binary_sensor.*` — node online\n- `switch.*` — LED\n- `button.*` — reboot\n\n### Services\n\n- `cudy_m3000.reboot_node`\n- `cudy_m3000.set_led`\n- `cudy_m3000.run_diagnostic`\n- `cudy_m3000.refresh`\n\n---\n\nApache License 2.0 · Copyright 2026 Marco Cavallo. L'attribution ne doit pas être retirée des redistributions ni des œuvres dérivées. Sans lien avec Shenzhen Cudy Technology Co., Ltd."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "clients": {
+        "name": "Clients connectés"
+      },
+      "cpu_load": {
+        "name": "Charge processeur"
+      },
+      "memory_load": {
+        "name": "Mémoire utilisée"
+      },
+      "node_state": {
+        "name": "État du nœud",
+        "state": {
+          "connected": "Connecté",
+          "disconnected": "Déconnecté",
+          "connecting": "Connexion",
+          "unknown": "Inconnu"
+        }
+      },
+      "backhaul": {
+        "name": "Liaison"
+      },
+      "channel_24": {
+        "name": "Canal 2,4 GHz"
+      },
+      "channel_5": {
+        "name": "Canal 5 GHz"
+      },
+      "total_clients": {
+        "name": "Clients du maillage"
+      },
+      "online_nodes": {
+        "name": "Nœuds en ligne"
+      },
+      "uptime": {
+        "name": "Démarré le"
+      },
+      "clients_24g": {
+        "name": "Appareils 2,4 GHz"
+      },
+      "clients_5g": {
+        "name": "Appareils 5 GHz"
+      }
+    },
+    "binary_sensor": {
+      "node_online": {
+        "name": "Nœud en ligne"
+      }
+    },
+    "switch": {
+      "led": {
+        "name": "LED"
+      }
+    },
+    "button": {
+      "reboot": {
+        "name": "Redémarrer"
+      }
+    }
+  },
+  "services": {
+    "reboot_node": {
+      "name": "Redémarrer le nœud",
+      "description": "Redémarre un nœud maillé. Sur le nœud principal, tout le routeur.",
+      "fields": {
+        "device_id": {
+          "name": "Nœud",
+          "description": "Le nœud à redémarrer."
+        }
+      }
+    },
+    "set_led": {
+      "name": "Définir la LED",
+      "description": "Allume ou éteint la LED d'état d'un nœud.",
+      "fields": {
+        "device_id": {
+          "name": "Nœud",
+          "description": "Le nœud dont la LED change."
+        },
+        "led": {
+          "name": "LED allumée",
+          "description": "Si la LED doit être allumée."
+        }
+      }
+    },
+    "run_diagnostic": {
+      "name": "Lancer un diagnostic",
+      "description": "Exécute ping, traceroute ou nslookup sur le routeur et renvoie le résultat.",
+      "fields": {
+        "tool": {
+          "name": "Outil",
+          "description": "Quel outil exécuter."
+        },
+        "target": {
+          "name": "Cible",
+          "description": "Adresse ou nom d'hôte."
+        }
+      }
+    },
+    "refresh": {
+      "name": "Actualiser",
+      "description": "Interroge le routeur immédiatement."
+    }
+  }
+}
