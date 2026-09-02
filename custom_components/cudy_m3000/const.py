@@ -52,7 +52,9 @@ PANEL_TITLE: Final = "Cudy M3000"
 PANEL_ICON: Final = "mdi:access-point-network"
 PANEL_COMPONENT: Final = "cudy-m3000-panel"
 PANEL_MODULE_URL: Final = f"/{DOMAIN}_panel/panel.js"
-PANEL_MODULE_IMPORT_URL: Final = PANEL_MODULE_URL
+# La query string la ignora il server ma non il browser: cambiando versione
+# il pannello si ricarica da solo, senza ricaricamento forzato.
+PANEL_MODULE_IMPORT_URL: Final = f"{PANEL_MODULE_URL}?v={VERSION}"
 
 # Lingue servite dal firmware Cudy. La chiave è il codice Home Assistant.
 ROUTER_LANGUAGES: Final[dict[str, str]] = {

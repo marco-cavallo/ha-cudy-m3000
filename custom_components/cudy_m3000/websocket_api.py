@@ -41,6 +41,7 @@ WS_NODE_ACTION = f"{DOMAIN}/node_action"
 WS_REFRESH = f"{DOMAIN}/refresh"
 WS_DIAGNOSTIC = f"{DOMAIN}/diagnostic"
 WS_SYSLOG = f"{DOMAIN}/syslog"
+WS_PAGE_ACTION = f"{DOMAIN}/page_action"
 
 
 def _coordinator(hass: HomeAssistant) -> CudyM3000Coordinator | None:
@@ -97,6 +98,7 @@ def async_register(hass: HomeAssistant) -> None:
     for command in (
         ws_overview, ws_pages, ws_page, ws_save, ws_clients,
         ws_node_action, ws_refresh, ws_diagnostic, ws_syslog,
+        ws_page_action,
     ):
         websocket_api.async_register_command(hass, command)
 
@@ -331,3 +333,29 @@ async def ws_syslog(hass, connection, msg) -> None:
         connection.send_error(msg["id"], "router_error", str(err))
         return
     connection.send_result(msg["id"], {"output": output})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): WS_PAGE_ACTION,
+        vol.Required("key"): str,
+        vol.Required("field"): str,
+        vol.Required("value"): bool,
+    }
+)
+@websocket_api.async_response
+async def ws_page_action(hass, connection, msg) -> None:
+    """Commuta un interruttore che il firmware applica subito, senza salvataggio."""
+    coordinator = _require(hass, connection, msg)
+    if coordinator is None:
+        return
+    try:
+        ok = await coordinator.admin.async_toggle_field(
+            msg["key"], msg["field"], msg["value"]
+        )
+    except CudyError as err:
+        connection.send_error(msg["id"], "router_error", str(err))
+        return
+    await coordinator.async_refresh()
+    connection.send_result(msg["id"], {"ok": ok})

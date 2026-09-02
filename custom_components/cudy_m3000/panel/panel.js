@@ -30,6 +30,7 @@ const DOMAIN = "cudy_m3000";
 // ---------------------------------------------------------------- traduzioni
 const I18N = {
   en: {
+    appliedNow: "Changes here are applied to the router immediately.",
     about: "About",
     diagnostics: "Diagnostics", target: "Address or hostname", run: "Run", running: "Running…", output: "Output", syslog: "System log", reload: "Reload", noOutput: "No output",
     uptime: "Uptime",
@@ -51,6 +52,7 @@ const I18N = {
     empty: "This node has no connected devices", collapse: "Collapse", expand: "Details",
   },
   it: {
+    appliedNow: "Le modifiche qui vengono applicate subito al router.",
     about: "Info",
     diagnostics: "Diagnostica", target: "Indirizzo o nome host", run: "Esegui", running: "In corso…", output: "Risultato", syslog: "Log di sistema", reload: "Ricarica", noOutput: "Nessun risultato",
     uptime: "Acceso da",
@@ -72,6 +74,7 @@ const I18N = {
     empty: "Nessun dispositivo collegato a questo nodo", collapse: "Chiudi", expand: "Dettagli",
   },
   de: {
+    appliedNow: "Änderungen werden hier sofort auf den Router angewendet.",
     about: "Info",
     diagnostics: "Diagnose", target: "Adresse oder Hostname", run: "Starten", running: "Läuft…", output: "Ausgabe", syslog: "Systemprotokoll", reload: "Neu laden", noOutput: "Keine Ausgabe",
     uptime: "Laufzeit",
@@ -93,6 +96,7 @@ const I18N = {
     empty: "Keine Geräte an diesem Knoten", collapse: "Schließen", expand: "Details",
   },
   fr: {
+    appliedNow: "Les changements sont appliqués immédiatement au routeur.",
     about: "À propos",
     diagnostics: "Diagnostic", target: "Adresse ou nom d\u2019h\u00f4te", run: "Ex\u00e9cuter", running: "En cours\u2026", output: "R\u00e9sultat", syslog: "Journal syst\u00e8me", reload: "Recharger", noOutput: "Aucun r\u00e9sultat",
     uptime: "Temps de marche",
@@ -114,6 +118,7 @@ const I18N = {
     empty: "Aucun appareil sur ce nœud", collapse: "Fermer", expand: "Détails",
   },
   es: {
+    appliedNow: "Los cambios se aplican al router de inmediato.",
     about: "Acerca de",
     diagnostics: "Diagnóstico", target: "Dirección o nombre de host", run: "Ejecutar", running: "Ejecutando…", output: "Resultado", syslog: "Registro del sistema", reload: "Recargar", noOutput: "Sin resultado",
     uptime: "Tiempo activo",
@@ -979,6 +984,12 @@ class CudyM3000Panel extends HTMLElement {
 </div>`).join("");
 
     const dirty = Object.keys(this._changes).length > 0;
+    // Una pagina composta solo da toggle ad azione immediata non ha nulla da
+    // salvare: il pulsante confonderebbe e basta.
+    const savable =
+      (s.fields || []).some((f) => f.kind !== "mirror" && !f.action_url) ||
+      (s.tables || []).some((tb) => tb.rows.some((r) =>
+        Object.values(r.cells).some((c) => c && c.name && !c.action_url)));
     return `
 <div class="card">
   <h3>${esc(s.title)}</h3>
@@ -986,9 +997,9 @@ class CudyM3000Panel extends HTMLElement {
   ${notes}
   <div class="fields">${fields}</div>
   ${tables}
-  <div class="actions">
+  ${savable ? `<div class="actions">
     <button class="btn primary" id="save" ${dirty ? "" : "disabled"}>${dirty ? t("save") : t("noChanges")}</button>
-  </div>
+  </div>` : `<div class="sub" style="margin-top:12px">${t("appliedNow")}</div>`}
 </div>`;
   }
 
@@ -1045,7 +1056,11 @@ class CudyM3000Panel extends HTMLElement {
 
     if (f.kind === "flag") {
       const on = String(value) === "1" || value === true;
-      return `<label class="switch"><input type="checkbox" data-field="${esc(f.name)}" ${on ? "checked" : ""} ${dis}><span class="slider"></span></label>`;
+      // I toggle con action_url non passano dal salvataggio: il firmware li
+      // applica subito sul proprio endpoint. Vanno marcati per non finire
+      // fra le modifiche in attesa di Salva.
+      const act = f.action_url ? ' data-action="1"' : "";
+      return `<label class="switch"><input type="checkbox" data-field="${esc(f.name)}"${act} ${on ? "checked" : ""} ${dis}><span class="slider"></span></label>`;
     }
     if (f.kind === "select" || f.kind === "radio") {
       return `<select data-field="${esc(f.name)}" ${dis}>${
@@ -1139,6 +1154,26 @@ class CudyM3000Panel extends HTMLElement {
 
     $$("[data-field]").forEach((el) => {
       const name = el.dataset.field;
+
+      // Azione immediata: si invia subito al router e non entra in _changes,
+      // altrimenti il Salva rispedirebbe il form senza alcun effetto.
+      if (el.dataset.action === "1") {
+        el.addEventListener("change", async () => {
+          const wanted = el.checked;
+          el.disabled = true;
+          try {
+            const res = await this._ws("page_action", {
+              key: this._activePage, field: name, value: wanted,
+            });
+            this._toast(res.ok ? this._t("saved") : this._t("saveFailed"), !res.ok);
+          } catch (err) {
+            this._toast(`${this._t("error")}: ${err.message || err}`, true);
+          }
+          await this._loadPage(this._activePage);
+        });
+        return;
+      }
+
       const handler = () => {
         this._changes[name] = el.type === "checkbox" ? (el.checked ? "1" : "0") : el.value;
         this._render();

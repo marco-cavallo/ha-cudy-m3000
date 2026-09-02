@@ -374,6 +374,43 @@ class CudyAdmin:
         )
         return response.strip().upper().startswith("OK")
 
+    async def async_toggle_field(self, key: str, field: str, on: bool) -> bool:
+        """Commuta un interruttore che agisce con un POST immediato.
+
+        Alcuni toggle delle pagine di configurazione non passano dal salvataggio
+        del form: il firmware li invia subito al proprio endpoint, indicato
+        nell'attributo action_url del campo. È il caso del controllo LED, dove
+        ogni riga scrive sul nodo corrispondente.
+        """
+        page = PAGES_BY_KEY.get(key)
+        if page is None:
+            raise CudyError(f"Pagina sconosciuta: {key}")
+
+        form = await self._client.async_get_form(page.path)
+        target = None
+        for table in form.tables:
+            for row in table.rows:
+                for cell in row["cells"].values():
+                    if isinstance(cell, dict) and cell.get("name") == field:
+                        target = cell
+        if target is None:
+            raise CudyError(f"Campo {field} non trovato in {key}")
+        if not target.get("action_url"):
+            raise CudyError(f"Il campo {field} non ha un'azione immediata")
+        if bool(target.get("value")) == on:
+            return True
+
+        response = await self._client.async_post_action(
+            target["action_url"],
+            {
+                "cbi.toggle": "1",
+                f"cbi.cbe.{field.removeprefix('cbid.')}": "1",
+                field: "1" if on else "0",
+            },
+            token=form.token,
+        )
+        return response.strip().upper().startswith("OK")
+
     async def async_node_action(self, node_id: str, action: str) -> str:
         """Esegue riavvio o reset su un nodo mesh."""
         paths = {"reboot": NODE_PAGE_REBOOT, "reset": NODE_PAGE_RESET}
