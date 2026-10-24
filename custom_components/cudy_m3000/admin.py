@@ -29,7 +29,7 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from .api import CudyClient, CudyError
+from .api import CudyClient, CudyConnectionError, CudyError
 from .cbi import parse_form
 from .status import STATUS_PANELS, parse_status_panel
 
@@ -94,6 +94,7 @@ PATH_LEDS = "/admin/system/leds"
 PATH_CLIENT_DEVLIST = "/admin/network/mesh/client/devlist"
 PATH_CLIENT_DEVSTATUS = "/admin/network/mesh/client/devstatus"
 PATH_SYSTEM_REBOOT = "/admin/system/reboot/reboot"
+PATH_SYSTEM_REBOOT_APPLY = "/admin/system/reboot/apply"
 PATH_SYSLOG = "/admin/system/status/syslog"
 
 # Strumenti diagnostici: stesso schema, ma il campo di input cambia nome fra
@@ -432,10 +433,19 @@ class CudyAdmin:
         )
 
     async def async_reboot_router(self) -> str:
-        """Riavvia il nodo principale."""
-        return await self._client.async_post_action(
-            PATH_SYSTEM_REBOOT, token=await self._page_token(PATH_SYSTEM_REBOOT)
-        )
+        """Riavvia il nodo principale.
+
+        Stessa sequenza della UI: il form di conferma si invia con `cbi.apply`,
+        poi il riavvio parte solo aprendo la pagina `apply`. Da quella pagina il
+        router può non rispondere più, perché si sta già spegnendo.
+        """
+        ok, text = await self._client.async_submit_form(PATH_SYSTEM_REBOOT, {})
+        if not ok:
+            raise CudyError("Il router ha rifiutato la richiesta di riavvio")
+        try:
+            return await self._client.async_get_html(PATH_SYSTEM_REBOOT_APPLY)
+        except CudyConnectionError:
+            return text
 
     async def _page_token(self, path: str) -> str:
         """Token incorporato in una pagina, l'unico che il router accetta."""

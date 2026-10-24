@@ -23,7 +23,7 @@ from typing import Final
 DOMAIN: Final = "cudy_m3000"
 INTEGRATION_NAME: Final = "Cudy M3000"
 AUTHOR: Final = "Marco Cavallo"
-VERSION: Final = "1.0.0"
+VERSION: Final = "1.0.1"
 
 CONF_SCAN_INTERVAL: Final = "scan_interval"
 CONF_LANGUAGE: Final = "language"

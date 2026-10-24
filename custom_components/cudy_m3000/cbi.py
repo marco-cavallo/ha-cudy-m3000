@@ -62,6 +62,10 @@ _RE_LABEL = re.compile(
 )
 _RE_HELP = re.compile(r'data-content="([^"]*)"', re.I)
 _RE_INPUT = re.compile(r"<input\b(?P<attrs>[^>]*)>", re.I)
+# Il pulsante Salva del firmware: un <button type="submit" name="cbi.apply">.
+_RE_SUBMIT_BUTTON = re.compile(
+    r'<button\b[^>]*type="submit"[^>]*name="(?P<name>cbi\.[\w.]+)"', re.I
+)
 _RE_SELECT = re.compile(
     r"<select\b(?P<attrs>[^>]*)>(?P<body>.*?)</select>", re.S | re.I
 )
@@ -161,6 +165,10 @@ class CbiForm:
     # Coppie (nome, valore) da rispedire invariate: marcatori cbi.cbe e simili.
     passthrough: list[tuple[str, str]] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    # Nomi dei pulsanti di invio. Il browser spedisce il nome del pulsante
+    # premuto, e il firmware applica la modifica solo se riceve `cbi.apply`:
+    # con il solo `cbi.submit` risponde come se avesse salvato, senza farlo.
+    submit_buttons: list[str] = field(default_factory=list)
 
     def field_by_name(self, name: str) -> CbiField | None:
         """Cerca un campo per nome, tra quelli semplici e quelli in tabella."""
@@ -480,9 +488,14 @@ def parse_form(raw_html: str, path: str) -> CbiForm:
 
     _number_repeated_labels(fields)
 
+    submit_buttons = list(
+        dict.fromkeys(m.group("name") for m in _RE_SUBMIT_BUTTON.finditer(body_html))
+    )
+
     return CbiForm(
         path=path, title=title, token=token, action=action, fields=fields,
         tables=tables, passthrough=passthrough, notes=[n for n in notes if n],
+        submit_buttons=submit_buttons,
     )
 
 
@@ -529,7 +542,18 @@ def build_payload(
         ("timeclock", timeclock),
         ("cbi.submit", "1"),
     ]
-    payload.extend(form.passthrough)
+    if "cbi.apply" in form.submit_buttons:
+        payload.append(("cbi.apply", "1"))
+
+    # Le pagine Wi-Fi hanno un marcatore nascosto `<sezione>.advanced` che la UI
+    # porta a 1 quando si aprono le impostazioni avanzate: finché vale 0 il
+    # firmware ignora larghezza di banda, modalità e canale di quella sezione.
+    for name, value in form.passthrough:
+        if name.endswith(".advanced"):
+            section = name.removesuffix("advanced")
+            if any(changed.startswith(section) for changed in changes):
+                value = "1"
+        payload.append((name, value))
 
     def emit(name: str, kind: str, current: Any) -> None:
         raw = changes.get(name, current)

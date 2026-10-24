@@ -1,7 +1,7 @@
 {
   "domain": "cudy_m3000",
   "name": "Cudy M3000",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "codeowners": [
     "@marco-cavallo"
   ],
